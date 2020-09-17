@@ -21,27 +21,27 @@ The Player window is optimised for 1920 x 1080 displays. If you can see the bord
 
 For an **OBS Source**:
 
-1. Create a new source » Browser
-1. Call it YTCP Player (or whatever you like)
+1. Create a new source » `Browser`
+1. Call it `YTCP Player` (or whatever you like)
 1. In the properties:
 
 -   URL: https://starfishpatkhoo.github.io/ytcp/player.html
--   Width: 1920
--   Height: 1080
--   Use Custom Frame Rate: No
--   Control Audio from OBS: Yes
--   Shutdown Source When Not Visible: No
--   Refresh Browser When Scene Becomes Active: No
+-   Width: `1920`
+-   Height: `1080`
+-   Use Custom Frame Rate: `No`
+-   Control Audio from OBS: `Yes`
+-   Shutdown Source When Not Visible: `No`
+-   Refresh Browser When Scene Becomes Active: `No`
 
 ### Step 2: Choose Player options
 
-1. In OBS, right click on the source you just created and select Interact.
+1. In OBS, right click on the source you just created and select `Interact`.
 1. Choose Player options:
 
 -   Captions: Choose None for no captions, or one of the languages. If no such language/caption exists for that video, no captions will be shown.
 -   Annotations: Check if Annotations should be displayed or not.
 
-3. Click Load Player
+3. Click `Load Player`
 
 ### Step 3: Open the Controller in a new Window/Tab/Dock Panel
 
@@ -52,10 +52,10 @@ For a **normal web browser**:
 
 For **OBS**:
 
-1. Go to View » Docks » Custom Browser Docks
+1. Go to `View` » `Docks` » `Custom Browser Docks`
 1. In the list:
 
--   Dock Name: YouTube Control Panel (or whatever you like)
+-   Dock Name: `YouTube Control Panel` (or whatever you like)
 -   URL: https://starfishpatkhoo.github.io/ytcp/controller.html
 
 3. Click Close
@@ -66,9 +66,9 @@ A new OBS Panel will appear and you can dock it somewhere if you like.
 
 Enter a single YouTube Video ID, or multiple IDs separated by commas. Here are some examples:
 
--   dQw4w9WgXcQ
--   3IEp9Gj86Tc
--   0tCsJ-SgIEE, 3IEp9Gj86Tc
+-   `dQw4w9WgXcQ`
+-   `3IEp9Gj86Tc`
+-   `0tCsJ-SgIEE, 3IEp9Gj86Tc`
 
 ### Step 5: Press Play in Controller
 
@@ -82,8 +82,8 @@ Enter a single YouTube Video ID, or multiple IDs separated by commas. Here are s
 -   Next Video (Only works if more than one Video ID was specified)
 -   Mute / Unmute Video
 -   Loop / Unloop Video when it ends
--   Jump to specified point in Video by keying in the time in minutes and seconds and pressing ENTER. For example, you can type "5:10" or "3.45" or "30" for 5 minutes 10 seconds, 3 minutes 45 seconds and 30 seconds respectively.
--   Size refers to playback quality size as reported by YouTube. Examples include "1080" or "720".
+-   Jump to specified point in Video by keying in the time in minutes and seconds and pressing ENTER. For example, you can type `5:10` or `3.45` or `30` for 5 minutes 10 seconds, 3 minutes 45 seconds and 30 seconds respectively.
+-   Size refers to playback quality size as reported by YouTube. Examples include `1080` or `720`.
 -   Display timer shows elapsed time followed by total video length. If this is a live stream, then video length refers to the duration since the live stream started.
 -   Progress bars display the current position of the video playback in orange, and the buffered position in light orange. When the video has played past key points (25%, 50%, 75%, etc), the percentage will be displayed inside the progress bar.
 -   Toggling the debug will display debugging messages, especially for embeded browsers that do not have easy access to the console.
@@ -113,6 +113,10 @@ No, you cannot. This is because the communication system between the Player and 
 ### Can someone else control my Player?
 
 No, they cannot. For the same reason why remote control from a different device won't work (as explained in the previous question), no one can control your Player instance with another browser window of the Controller. Unless of course, they've already hacked your computer.
+
+### Does this slow down or affect my YouTube playback speed/quality?
+
+No. Your video will play as well as and as fast as you normally would since it is still your browser that does the actual playing from YouTube.
 
 ### Why is the text in the Player so big?
 
