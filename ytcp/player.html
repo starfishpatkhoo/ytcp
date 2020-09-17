@@ -1,0 +1,590 @@
+<html>
+	<body>
+		<style>
+			body {
+				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+				margin: 0;
+				color: #e1e1e1;
+				background: #1b1b1b;
+			}
+			.row {
+				text-align: center;
+				padding-top: 1em;
+				width: 1500px;
+				padding-left: 200px;
+				padding-right: 200px;
+			}
+			.row .row {
+				margin: 0 -1.5em;
+				text-align: center;
+			}
+			.col {
+				padding: 0 1.5em;
+				text-align: center;
+			}
+			.row:after {
+				content: "";
+				clear: both;
+				display: table;
+			}
+			@media only screen {
+				.col {
+					float: left;
+					width: 100%;
+					box-sizing: border-box;
+				}
+			}
+			.hidden {
+				display: none;
+			}
+			.header_app {
+				padding-top: 3em;
+				padding-bottom: 1em;
+			}
+			.screen_frame {
+				width: 1900px;
+				height: 1060px;
+				margin: 10px;
+				border: solid 3px #e1e1e1;
+				overflow: hidden;
+			}
+			.config_items {
+				font-size: 2em;
+				width: 500px;
+			}
+			button {
+				background-color: #990033;
+				color: #e1e1e1;
+				font-size: 1em;
+				border-radius: 5px;
+				padding: 15px 20px;
+				border: none;
+				outline: none;
+				font-weight: bold;
+				text-align: center;
+				text-decoration: none;
+			}
+			input[type="checkbox"] {
+				width: 25px;
+				height: 25px;
+			}
+			#ytplayer {
+				height: 390px;
+				width: 640px;
+				margin-left: 590px;
+				margin-top: 2em;
+				margin-bottom: 2em;
+			}
+			#conlog {
+				margin-left: 10%;
+				margin-right: 10%;
+				padding-left: 1em;
+				padding-right: 1em;
+				margin-top: 0.5em;
+				padding-top: 0.25em;
+				border: solid 3px #e1e1e1;
+				max-width: 1920px;
+				height: 200px;
+				overflow-y: scroll;
+				overflow-wrap: break-word;
+				text-align: left;
+				font-size: 0.75em;
+			}
+			.conlog_dts {
+				text-decoration: underline;
+				font-weight: bold;
+			}
+		</style>
+		<script>
+			// Setup Broadcast Channel
+			const bc = new BroadcastChannel("dwpk_ytcp");
+			const def_state = {
+				ytid: "",
+				state_code: 899,
+				msg: "",
+				err_code: 0,
+				err: "",
+				buffer_level: 0,
+				time_elapsed: 0,
+				time_length: 0,
+				video_url: "",
+				quality: "",
+				muted: 0,
+				loop: 0,
+				captions: "none",
+				annotations: 0,
+			};
+			const def_player_options = {
+				autoplay: "1",
+				cc_lang_pref: "en",
+				cc_load_policy: "0",
+				controls: "0",
+				disablekb: "1",
+				enablejsapi: "1",
+				fs: "0",
+				iv_load_policy: "3",
+				modestbranding: "1",
+				origin: "null",
+				rel: "0",
+			};
+			const debug_level = 1;
+
+			// Our Variables
+			var $ = document.querySelector.bind(document);
+			var player;
+			var state = def_state;
+			var player_options = def_player_options;
+			var updint = null;
+
+			// Debugging Messages
+			if (typeof console != "undefined") {
+				if (typeof console.log != "undefined") {
+					console.olog = console.log;
+				} else {
+					console.olog = function () {};
+				}
+			}
+			console.log = function (message) {
+				console.olog(message);
+				time_elapsed = Date.now() - time_start;
+				$("#conlog").innerHTML =
+					'<p><span class="conlog_dts">' +
+					new Date(time_elapsed).toISOString().substr(11, 12) +
+					':</span><span class="conlog_msg"> ' +
+					message +
+					"</span></p>" +
+					$("#conlog").innerHTML;
+			};
+			console.error = console.debug = console.info = console.log;
+			function fn_toggle_conlog() {
+				$("#conlog").classList.toggle("hidden");
+				return;
+			}
+
+			// Player Event Handlers
+			function onYouTubeIframeAPIReady() {
+				// Load YT Player
+				player = new YT.Player("ytplayer", {
+					height: "390",
+					width: "640",
+					playerVars: player_options,
+					events: {
+						onReady: fn_player_ready,
+						onStateChange: fn_player_statechange,
+						onError: fn_player_error,
+						onPlaybackQualityChange: fn_player_quality,
+					},
+				});
+				return;
+			}
+			function fn_player_ready(event) {
+				fn_gofs("#ytplayer");
+				player.setVolume(100); // Set Volume to Max, control the output volume elsewhere
+				fn_bc_ready_reset(); // Reset Errors
+				bc.onmessage = function (event) {
+					fn_bc_recv(event);
+				}; // Start Listening To Commands
+				console.log("Player Ready");
+				return;
+			}
+			function fn_player_quality(event) {
+				switch (event.data) {
+					case "small":
+						state.quality = "Small";
+						break;
+					case "medium":
+						state.quality = "Medium";
+						break;
+					case "large":
+						state.quality = "Large";
+						break;
+					case "hd720":
+						state.quality = "720";
+						break;
+					case "hd1080":
+						state.quality = "1080";
+						break;
+					case "highres":
+						state.quality = "High-Res";
+						break;
+				}
+				fn_bc_update();
+				return;
+			}
+			function fn_player_error(event) {
+				fn_bc_send(null, event.data);
+				return;
+			}
+			function fn_player_statechange(event) {
+				fn_bc_send(event.data, null);
+				return;
+			}
+
+			// BC Related
+			function fn_bc_recv(event) {
+				var params = JSON.parse(event.data);
+				params.ytid = params.ytid.trim();
+				params.cmd = params.cmd.trim();
+				params.optstr = params.optstr.trim();
+				console.log("Message Received: " + JSON.stringify(params));
+				switch (params.cmd) {
+					case "playpause":
+						fn_player_playpause(params.ytid);
+						break;
+					case "fwd10":
+						fn_player_fwd10();
+						break;
+					case "rew10":
+						fn_player_rew10();
+						break;
+					case "jump":
+						fn_player_jump(params.optstr);
+						break;
+					case "restart":
+						fn_player_jump("");
+						break;
+					case "mute":
+						fn_player_toggle_mute();
+						break;
+					case "loop":
+						fn_player_toggle_repeat();
+						break;
+					case "prev":
+						fn_player_vid_prev();
+						break;
+					case "next":
+						fn_player_vid_next();
+						break;
+					case "poll":
+					default:
+						break;
+				}
+				fn_bc_update();
+				return;
+			}
+			function fn_bc_update_set() {
+				updint = setInterval(fn_bc_update, 1000);
+				return;
+			}
+			function fn_bc_update_clear() {
+				clearInterval(updint);
+				updint = null;
+				return;
+			}
+			function fn_bc_update() {
+				fn_bc_send(null, null);
+				return;
+			}
+			function fn_bc_ready_reset() {
+				fn_bc_send(800, "");
+				return;
+			}
+			function fn_bc_send(state_code, err_code) {
+				if (null != state_code) {
+					state.state_code = state_code;
+					switch (state_code) {
+						case -1:
+							state.msg = "Not Playing";
+							break;
+						case 0:
+							state.msg = "Playback Ended";
+							fn_bc_update_clear();
+							break;
+						case 1:
+							state.msg = "Playing";
+							break;
+						case 2:
+							state.msg = "Paused";
+							break;
+						case 3:
+							state.msg = "Buffering";
+							break;
+						case 5:
+							state.msg = "Cued";
+							break;
+						case 800:
+							state.msg = "Ready";
+							break;
+						case 899:
+							state.msg = "Not Ready";
+							break;
+						default:
+							state.msg = state_code;
+							break;
+					}
+				}
+				if (null != err_code) {
+					state.err_code = err_code;
+					switch (err_code) {
+						case "":
+						case 0:
+							state.err = "";
+							break;
+						case 2:
+							state.err = "Invalid Parameter or Video ID";
+							break;
+						case 5:
+							state.err = "HTML5 Playback Not Possible";
+							break;
+						case 100:
+							state.err = "Video Removed or Marked Private";
+							break;
+						case 101:
+						case 150:
+							state.err = "Embeded Playback Not Allowed";
+							break;
+						default:
+							state.err = err_code;
+							break;
+					}
+					fn_bc_update_clear();
+				}
+				// Get Current Playback Information
+				state.video_url = player.getVideoUrl();
+				state.time_length = player.getDuration();
+				state.time_elapsed = player.getCurrentTime();
+				state.buffer_level = player.getVideoLoadedFraction();
+				// state.muted = player.isMuted();
+				if (1 < debug_level) {
+					console.log("Message Sent: " + JSON.stringify(state));
+				}
+				bc.postMessage(JSON.stringify(state));
+				return;
+			}
+
+			// Command Handlers
+			function fn_player_playpause(id) {
+				if (0 < id.length && id != state.ytid) {
+					// New Video
+					state = def_state;
+					fn_bc_ready_reset(); // Reset Errors
+					// player.cueVideoById(id, 0);  // Cue a single video But Do _NOT_ Start Playing It
+					// player.loadVideoById(id, 0);  // Loads a single video and Starts Playing It
+					player.loadPlaylist(id, 0, 0); // Loads List of Videos (array or comma-separated string) and Starts Playing It
+					state.ytid = id;
+					fn_bc_update_set();
+					return;
+				}
+				if (1 > state.ytid.length) {
+					return;
+				} // No Current Video
+				switch (player.getPlayerState()) {
+					case 1:
+						player.pauseVideo();
+						fn_bc_update_clear();
+						break;
+					default:
+						player.playVideo();
+						fn_bc_update_set();
+						break;
+				}
+				return;
+			}
+			function fn_player_fwd10() {
+				player.seekTo(state.time_elapsed + 10);
+				return;
+			}
+			function fn_player_rew10() {
+				player.seekTo(state.time_elapsed - 10);
+				return;
+			}
+			function fn_player_jump(optstr) {
+				var total_secs = 0;
+				if (0 < optstr.length) {
+					if (optstr.indexOf(":") >= 0) {
+						var parts = optstr.split(":");
+						total_secs =
+							parseInt(parts[0]) * 60 + parseInt(parts[1]);
+					} else {
+						if (optstr.indexOf(".") >= 0) {
+							var parts = optstr.split(".");
+							total_secs =
+								parseInt(parts[0]) * 60 + parseInt(parts[1]);
+						} else {
+							total_secs = parseInt(optstr);
+						}
+					}
+				}
+				player.seekTo(total_secs);
+				return;
+			}
+			function fn_player_toggle_mute() {
+				// There is no event for onMute(), so the update in the Control Panel takes a second
+				// Seems like YouTube's own isMuted() has some lag as well
+				if (player.isMuted()) {
+					player.unMute();
+					state.muted = false;
+				} else {
+					player.mute();
+					state.muted = true;
+				}
+				return;
+			}
+			function fn_player_toggle_repeat() {
+				if (state.loop) {
+					player.setLoop(false);
+					state.loop = false;
+				} else {
+					player.setLoop(true);
+					state.loop = true;
+				}
+				return;
+			}
+			function fn_player_vid_prev() {
+				player.previousVideo();
+				return;
+			}
+			function fn_player_vid_next() {
+				player.nextVideo();
+				return;
+			}
+
+			// FS Management
+			function fn_gofs(id) {
+				var itemfrm = $(id);
+				if (itemfrm.requestFullscreen) {
+					itemfrm.requestFullscreen();
+				} else if (itemfrm.mozRequestFullScreen) {
+					itemfrm.mozRequestFullScreen(); /* Firefox */
+				} else if (itemfrm.webkitRequestFullscreen) {
+					itemfrm.webkitRequestFullscreen(); /* Chrome, Safari and Opera */
+				} else if (itemfrm.msRequestFullscreen) {
+					itemfrm.msRequestFullscreen(); /* IE/Edge */
+				}
+				return;
+			}
+			function fn_exitfs(id) {
+				var itemfrm = $(id);
+				if (itemfrm.exitFullscreen) {
+					itemfrm.exitFullscreen();
+				} else if (itemfrm.mozCancelFullScreen) {
+					itemfrm.mozCancelFullScreen(); /* Firefox */
+				} else if (itemfrm.webkitExitFullscreen) {
+					itemfrm.webkitExitFullscreen(); /* Chrome, Safari and Opera */
+				} else if (itemfrm.msExitFullscreen) {
+					itemfrm.msExitFullscreen(); /* IE/Edge */
+				}
+				return;
+			}
+
+			// Load Player
+			function fn_load_player() {
+				// Player Options
+				var captions = $("#opt_caption").options[
+					$("#opt_caption").selectedIndex
+				].value;
+				if ("none" != captions) {
+					state.captions = captions;
+					player_options.cc_load_policy = "1";
+					player_options.cc_lang_pref = captions;
+				}
+				if ($("#opt_annotate").checked) {
+					state.annotations = true;
+					player_options.iv_load_policy = "1";
+				}
+				// Load YT iFrame Player Asynchronously
+				var tag = document.createElement("script");
+				tag.src = "https://www.youtube.com/iframe_api";
+				var firstScriptTag = document.getElementsByTagName("script")[0];
+				firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+				return;
+			}
+
+			// Page Setup
+			function fn_page_ready() {
+				time_start = new Date();
+				console.log("Player Page Loaded");
+				return;
+			}
+		</script>
+		<div class="hidden">
+			<svg>
+				<symbol id="glyph_youtube" viewBox="0 0 492 110">
+					<path
+						d="M154.3 17.5a19.6 19.6 0 0 0-13.8-13.8C128.4.4 79.7.4 79.7.4S31 .5 18.9 3.8A19.6 19.6 0 0 0 5.1 17.6C1.44 39.1.02 71.86 5.2 92.5A19.6 19.6 0 0 0 19 106.3c12.1 3.3 60.8 3.3 60.8 3.3s48.7 0 60.8-3.3a19.6 19.6 0 0 0 13.8-13.8c3.86-21.53 5.05-54.27-.1-75z"
+						fill="red"
+					/>
+					<path fill="#fff" d="M64.2 78.4L104.6 55 64.2 31.6z" />
+					<g fill="#E1E1E1">
+						<path
+							d="M227.9 99.7c-3.1-2.1-5.3-5.3-6.6-9.7s-1.9-10.2-1.9-17.5v-9.9c0-7.3.7-13.3 2.2-17.7 1.5-4.5 3.8-7.7 7-9.7s7.3-3.1 12.4-3.1c5 0 9.1 1 12.1 3.1s5.3 5.3 6.7 9.7 2.1 10.3 2.1 17.6v9.9c0 7.3-.7 13.1-2.1 17.5s-3.6 7.6-6.7 9.7c-3.1 2-7.3 3.1-12.5 3.1-5.4.1-9.6-1-12.7-3zM245.2 89c.9-2.2 1.3-5.9 1.3-10.9V56.8c0-4.9-.4-8.5-1.3-10.7-.9-2.3-2.4-3.4-4.5-3.4s-3.5 1.1-4.4 3.4-1.3 5.8-1.3 10.7v21.3c0 5 .4 8.7 1.2 10.9s2.3 3.3 4.5 3.3c2.1 0 3.6-1.1 4.5-3.3zm219.2-16.3v3.5l.4 9.9c.3 2.2.8 3.8 1.6 4.8s2.1 1.5 3.8 1.5c2.3 0 3.9-.9 4.7-2.7.9-1.8 1.3-4.8 1.4-8.9l13.3.8c.1.6.1 1.4.1 2.4 0 6.3-1.7 11-5.2 14.1s-8.3 4.7-14.6 4.7c-7.6 0-12.9-2.4-15.9-7.1s-4.6-12.1-4.6-22V61.6c.34-17 3.33-29.45 20.9-29.5 5.3 0 9.3 1 12.1 2.9s4.8 4.9 6 9 1.7 9.7 1.7 16.9v11.7h-25.7zm2-28.8c-.8 1-1.3 2.5-1.6 4.7s-.4 10-.4 10v4.9h11.2v-4.9c0 4.9-.1-7.7-.4-10s-.8-3.9-1.6-4.8-2-1.4-3.6-1.4c-1.7.1-2.9.6-3.6 1.5zM190.5 71.4L173 8.2h15.3s7.15 31.7 9.6 46.6h.4c2.78-15.82 9.8-46.6 9.8-46.6h15.3l-17.7 63.1v30.3h-15.1V71.4z"
+						/>
+						<path
+							id="A"
+							d="M311.5 33.4v68.3h-12l-1.3-8.4h-.3c-3.3 6.3-8.2 9.5-14.7 9.5-11.77-.03-13.08-10-13.2-18.4v-51h15.4v50.1c0 3 .3 5.2 1 6.5 1.42 2.78 5.1 2.07 7.1.7a8 8 0 0 0 2.7-3.1V33.4z"
+							fill="#E1E1E1"
+						/>
+						<path
+							d="M353.3 20.6H338v81.1h-15V20.6h-15.3V8.2h45.5v12.4zm87.9 23.7c-.9-4.3-2.4-7.4-4.5-9.4-2.1-1.9-4.9-2.9-8.6-2.9a14.1 14.1 0 0 0-7.9 2.4c-2.5 1.6-4.3 3.7-5.7 6.3h-.1v-36h-14.8v96.9h12.7l1.6-6.5h.3a14 14 0 0 0 5.3 5.5c2.4 1.3 5 2 7.9 2 5.2 0 9-2.4 11.5-7.2 2.4-4.8 3.7-12.3 3.7-22.4V62.2c0-7.6-.5-13.6-1.4-17.9zm-14.1 27.9c0 5-.2 8.9-.6 11.7s-1.1 4.8-2.1 6-2.3 1.8-3.9 1.8c-3.1-.1-4.86-1.5-6.1-3.6V49.3c.5-1.9 1.4-3.4 2.7-4.6 2.2-2.47 5.96-2.5 7.7 0 .9 1.2 1.4 3.3 1.8 6.2.3 2.9.5 7 .5 12.4z"
+						/>
+					</g>
+					<use xlink:href="#A" x="78.9" />
+				</symbol>
+			</svg>
+		</div>
+		<div class="screen_frame">
+			<div class="row header_app">
+				<span style="margin-left: -6em"
+					><svg
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+						height="5em"
+						fill="#E1E1E1"
+					>
+						<use href="#glyph_youtube" /></svg></span
+				><span
+					style="
+						margin-left: 0.5em;
+						vertical-align: top;
+						line-height: 1.6em;
+						font-size: 3em;
+						border-bottom: solid 1px white;
+					"
+					>Player</span
+				>
+			</div>
+			<div class="row" style="padding-top: 3em">
+				<div
+					class="col config_items"
+					style="text-align: right; padding-top: 0.75rem"
+				>
+					<label for="opt_caption">Captions: &nbsp;</label>
+					<select id="opt_caption" style="font-size: 2rem">
+						<option value="none" selected="selected">None</option>
+						<option value="en">English</option>
+						<option value="fr">French</option>
+						<option value="es">Spanish</option>
+						<option value="ja">Japanese</option>
+						<option value="ko">Korean</option>
+						<option value="zh">Chinese</option>
+					</select>
+				</div>
+				<div class="col config_items" style="text-align: center">
+					<button id="btn_start" onclick="fn_load_player(this)">
+						Load Player
+					</button>
+					<div
+						style="font-size: 0.75rem; padding-top: 1rem"
+						onclick="fn_toggle_conlog()"
+					>
+						Toggle Debug
+					</div>
+				</div>
+				<div
+					class="col config_items"
+					style="text-align: left; padding-top: 0.75rem"
+				>
+					<input type="checkbox" id="opt_annotate" /><label
+						for="opt_annotate"
+						>&nbsp; Annotations</label
+					>
+				</div>
+			</div>
+			<div id="ytplayer"></div>
+			<div class="row hidden" id="conlog"></div>
+		</div>
+		<script>
+			fn_page_ready();
+		</script>
+	</body>
+</html>
