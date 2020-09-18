@@ -1,6 +1,6 @@
 # About YTCP
 
-This is the YTCP (YouTube Control Panel).
+This is YTCP (YouTube Control Panel).
 
 In short, it allows you to load YouTube in one browser window (the Player) and then control its playback/video/etc from a second browser window (the Controller). In addition, the Player will play the video in full screen mode automatically, and not in a small window. Here are two simple use cases:
 
@@ -12,55 +12,53 @@ In short, it allows you to load YouTube in one browser window (the Player) and t
 
 ### Step 1: Open the Player in a new Window/Tab/Streaming Source
 
-For a **normal web browser**:
+_For a normal web browser:_
 
 1. Open a new browser window and go to this URL: https://starfishpatkhoo.github.io/ytcp/player.html
 1. Put this browser window on a different screen or monitor
 
-The Player window is optimised for 1920 x 1080 displays. If you can see the borders without any scroll bars, you're good.
+The Player is optimised for 1920 x 1080 displays and if you can see the borders without any scroll bars, you're good. But even if you have a smaller display, it's fine because the Player will switch to full screen mode anyway.
 
-For an **OBS Source**:
+_For OBS:_
 
-1. Create a new source » `Browser`
+1. Create a `New Source` » `Browser`
 1. Call it `YTCP Player` (or whatever you like)
 1. In the properties:
 
--   URL: https://starfishpatkhoo.github.io/ytcp/player.html
--   Width: `1920`
--   Height: `1080`
--   Use Custom Frame Rate: `No`
--   Control Audio from OBS: `Yes`
--   Shutdown Source When Not Visible: `No`
--   Refresh Browser When Scene Becomes Active: `No`
+-   `URL`: https://starfishpatkhoo.github.io/ytcp/player.html
+-   `Width`: 1920
+-   `Height`: 1080
+-   `Use Custom Frame Rate`: No
+-   `Control Audio from OBS`: Yes
+-   `Shutdown Source When Not Visible`: No
+-   `Refresh Browser When Scene Becomes Active`: No
 
 ### Step 2: Choose Player options
 
-1. In OBS, right click on the source you just created and select `Interact`.
+1. _[OBS Only]_ Right click on the source you just created and select `Interact`.
 1. Choose Player options:
 
--   Captions: Choose None for no captions, or one of the languages. If no such language/caption exists for that video, no captions will be shown.
--   Annotations: Check if Annotations should be displayed or not.
+-   `Captions`: Choose `None` for no captions, or one of the languages. If no such language/caption exists for that video, no captions will be shown.
+-   `Annotations`: Check if Annotations should be displayed or not.
 
-3. Click `Load Player`
+3. Click `Load Player`. The Player should load and switch to full screen. Leave it alone, do not click on it or press any keys etc. Just `ALT-TAB` away, move your mouse back to the main screen or close the OBS Interact window.
 
 ### Step 3: Open the Controller in a new Window/Tab/Dock Panel
 
-For a **normal web browser**:
+_For a normal web browser:_
 
 1. Open a new browser window and go to this URL: https://starfishpatkhoo.github.io/ytcp/controller.html
 1. Leave this browser window on your main "control" screen
 
-For **OBS**:
+_For OBS:_
 
 1. Go to `View` » `Docks` » `Custom Browser Docks`
 1. In the list:
 
--   Dock Name: `YouTube Control Panel` (or whatever you like)
+-   Dock Name: `YTCP Controller` (or whatever you like)
 -   URL: https://starfishpatkhoo.github.io/ytcp/controller.html
 
-3. Click Close
-
-A new OBS Panel will appear and you can dock it somewhere if you like.
+3. Click `Close`. A new OBS Panel will appear and you can dock it somewhere if you like.
 
 ### Step 4: Key in one or more YouTube Video ID(s) in the Controller
 
@@ -82,7 +80,7 @@ Enter a single YouTube Video ID, or multiple IDs separated by commas. Here are s
 -   Next Video (Only works if more than one Video ID was specified)
 -   Mute / Unmute Video
 -   Loop / Unloop Video when it ends
--   Jump to specified point in Video by keying in the time in minutes and seconds and pressing ENTER. For example, you can type `5:10` or `3.45` or `30` for 5 minutes 10 seconds, 3 minutes 45 seconds and 30 seconds respectively.
+-   Jump to a specific point in the Video by keying in the time in minutes and seconds and pressing ENTER. For example, you can type `5:10` or `3.45` or `30` for 5 minutes 10 seconds, 3 minutes 45 seconds and 30 seconds respectively.
 -   Size refers to playback quality size as reported by YouTube. Examples include `1080` or `720`.
 -   Display timer shows elapsed time followed by total video length. If this is a live stream, then video length refers to the duration since the live stream started.
 -   Progress bars display the current position of the video playback in orange, and the buffered position in light orange. When the video has played past key points (25%, 50%, 75%, etc), the percentage will be displayed inside the progress bar.
@@ -104,7 +102,11 @@ Yes. If a video is currently playing, just key in the new Video ID into the cont
 
 ### If I switch to a different scene in OBS, what happens to the video when I switch back?
 
-If you had set Shutdown Source When Not Visible and Refresh Browser When Scene Becomes Active to No, then when you switch away, the YouTube video will pause and no audio will be heard. When you switch back, the video will continue playing where you left off. If you set either one to Yes, then the Player will reload/refresh and you will have to click on Load Player in the Player and click on Play in the Controller again.
+If you had set Shutdown Source When Not Visible and Refresh Browser When Scene Becomes Active to No, then when you switch away, the YouTube video will continue to play in the background but no audio will be heard. If you set either one to Yes, then the Player will reload/refresh and you will have to click on Load Player in the Player and click on Play in the Controller again. If you want to pause the Video when you switch to a different scene, use the Controller to pause and resume before and after you switch scenes.
+
+### What browsers are supported?
+
+At the moment, Chrome, Edge and Firefox. Safari and IE are not, but if there is enough requests for it, I will add it.
 
 ### Can I open the Player and Controller on two different computers/devices, like my PC and my smartphone?
 
@@ -116,7 +118,7 @@ No, they cannot. For the same reason why remote control from a different device 
 
 ### Does this slow down or affect my YouTube playback speed/quality?
 
-No. Your video will play as well as and as fast as you normally would since it is still your browser that does the actual playing from YouTube.
+No. Your video will play as well as and as fast as you normally would since it is still your browser that does the actual playing directly from YouTube.
 
 ### Why is the text in the Player so big?
 
@@ -124,20 +126,22 @@ In embedded players such as OBS, the screen size in the preview/interact/source/
 
 ### Are you tracking our Video IDs?
 
-I do not track or record anything that is generated by this script. If you want to be reassured, feel free to open the link to the Player and Controller and "View Source".
+I do not track or record anything that this script does or is used for. If you want to be reassured, feel free to open the link to the Player and Controller and `View Source`.
 
-### Is Google/YouTube tracking our Video IDs?
+### Is Google/YouTube/GitHub tracking our Video IDs?
 
-Most definitely, absolutely, totally, 100% of course not! That's just, like, fake news, you know? Emperor Palpatine told me and I believe him.
+No! Most definitely, absolutely, totally, 100% of course NOT! That's just, like, fake news, you know? Emperor Palpatine assured me and I believe him.
 
 ### Is this website/service free for me to use?
 
-Yes. As long as hosting and bandwidth is free to me.
+Yes. As long as hosting and bandwidth is free to me. But if you like YTCP or you find is useful and would like to show your appreciation, please support the Starfish at https://ko-fi.com/starfishpatkhoo
 
-### Does playing videos through the YTCP count towards a video's view count?
+### Does playing videos through the YTCP count towards a Video's view count?
 
 No, it doesn't. YouTube policy states that playback through embedded players do not count towards a video's view count.
 
 ### Can I download this script and run it from my local computer?
 
-Yes (mostly). In fact these two web pages are purposefully written as single self-contained pages with no external CSS/JS/images. So it is easy to just save it and open it in your browser locally. However, in many clients (such as the OBS built-in browser) and videos (such as dQw4w9WgXcQ) there are security restrictions imposed by the YouTube player that will prevent it from being loaded or the video from being played. From my investigations, the YouTube player will not load successfully from a local file when loaded in OBS (but works in Chrome desktop browser). Secondly, some vidoes are blocked from playing when the source of the embedding is not a domain. C:\player.html, http://127.0.0.1/player.html will not work. Only http://localhost/player.html will work. So, it's just easier to load the URL listed above. Besides, if you use this URL, you will always be using the updated version of this script.
+Yes (mostly). In fact these two web pages are purposefully written as single self-contained pages with no external CSS/JS/images. So it is easy to just save it and open it in your browser locally. However, in some clients (such as the OBS built-in browser) and videos (such as `dQw4w9WgXcQ`) there are security restrictions imposed by the YouTube player that will prevent it from being loaded or the video from being played. From my investigations, the YouTube player will not load successfully from a local file when loaded in OBS (but works in Chrome desktop browser). Secondly, some vidoes are blocked from playing when the source of the embedding is not a domain. C:\player.html, http://127.0.0.1/player.html will not work. Only http://localhost/player.html will work. So, it's just easier to load the URL listed above. Besides, if you use this URL, you will always be using the updated version of this script.
+
+<a href="https://ko-fi.com/starfishpatkhoo" title="Support Starfish at Ko-Fi"><img src="https://starfishpatkhoo.github.io/ytcp/ko-fi-starfish.svg" width="250px"></a>
