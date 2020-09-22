@@ -132,16 +132,20 @@ I do not track or record anything that this script does or is used for. If you w
 
 No! Most definitely, absolutely, totally, 100% of course NOT! That's just, like, fake news, you know? Emperor Palpatine assured me and I believe him.
 
-### Is this website/service free for me to use?
-
-Yes. As long as hosting and bandwidth is free to me. But if you like YTCP or you find is useful and would like to show your appreciation, please support the Starfish at https://ko-fi.com/starfishpatkhoo
-
 ### Does playing videos through the YTCP count towards a Video's view count?
 
 No, it doesn't. YouTube policy states that playback through embedded players do not count towards a video's view count.
 
+### How can I get help with this thing?
+
+If you find a bug, please file an issue at https://github.com/starfishpatkhoo/ytcp/issues or for general chit-chat, come on by to the YTCP Thread at OBS: https://obsproject.com/forum/resources/ytcp-youtube-control-panel.1098/
+
+### Is this website/service free for me to use?
+
+Yes. As long as hosting and bandwidth is free to me. But if you like YTCP or you find is useful and would like to show your appreciation, please support the Starfish at https://ko-fi.com/starfishpatkhoo
+
 ### Can I download this script and run it from my local computer?
 
-Yes (mostly). In fact these two web pages are purposefully written as single self-contained pages with no external CSS/JS/images. So it is easy to just save it and open it in your browser locally. However, in some clients (such as the OBS built-in browser) and videos (such as `dQw4w9WgXcQ`) there are security restrictions imposed by the YouTube player that will prevent it from being loaded or the video from being played. From my investigations, the YouTube player will not load successfully from a local file when loaded in OBS (but works in Chrome desktop browser). Secondly, some vidoes are blocked from playing when the source of the embedding is not a domain. C:\player.html, http://127.0.0.1/player.html will not work. Only http://localhost/player.html will work. So, it's just easier to load the URL listed above. Besides, if you use this URL, you will always be using the updated version of this script.
+Yes (mostly). In fact these two web pages are purposefully written as single self-contained pages with no external CSS/JS/images. So it is easy to just save it and open it in your browser locally. However, in some clients (such as the OBS built-in browser) and videos (such as `dQw4w9WgXcQ`) there are security restrictions imposed by the YouTube player that will prevent it from being loaded or the video from being played. From my investigations, the YouTube player will not load successfully from a local file when loaded in OBS (but works in Chrome desktop browser). Secondly, some vidoes are blocked from playing when the source of the embedding is not a domain. `C:\player.html`, http://127.0.0.1/player.html will not work. Only http://localhost/player.html will work. So, it's just easier to load the URL listed above. Besides, if you use this URL, you will always be using the updated version of this script.
 
 <a href="https://ko-fi.com/starfishpatkhoo" title="Support Starfish at Ko-Fi"><img src="https://starfishpatkhoo.github.io/ytcp/ko-fi-starfish.svg" width="250px"></a>
