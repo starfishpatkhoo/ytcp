@@ -66,7 +66,7 @@ Enter a single YouTube Video ID, or multiple IDs separated by commas. Here are s
 
 -   `dQw4w9WgXcQ`
 -   `3IEp9Gj86Tc`
--   `0tCsJ-SgIEE, 3IEp9Gj86Tc`
+-   `0tCsJ-SgIEE, cVEWkQa1Mso`
 
 ### Step 5: Press Play in Controller
 
