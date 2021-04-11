@@ -2,9 +2,9 @@
 
 This is YTCP (YouTube Control Panel).
 
-In short, it allows you to load YouTube in one browser window (the Player) and then control its playback/video/etc from a second browser window (the Controller). In addition, the Player will play the video in full screen mode automatically, and not in a small window. Here are two simple use cases:
+The purpose of this plugin is to allow you to load YouTube in one browser window (the Player) but control its playback/video/etc from a second browser window (the Controller). By doing this, the Player window can be displayed/screen captured more cleanly without mouse clicks and YouTube controls being shown, even when playing/changing different YouTube videos. In addition, the Player will play the video in full screen mode automatically, and not in a small window. Here are two simple use cases:
 
--   Dual-screen: Open the Player in one browser window on Screen 1, facing the audience, and then open the Controller on Screen 2 where the video can be easily controlled by the operator. This is also true for dual screens when you connect from a laptop to a projector. This is kind of like asking PowerPoint to show the slideshow on another monitor, but you know, with YouTube.
+-   Dual-screen: Open the Player in one browser window on Screen 1, facing the audience, and then open the Controller on Screen 2 where the video can be easily controlled by the operator. This is also true for dual screens when you connect from a laptop to a projector. This is kind of like asking PowerPoint to show/control the slideshow on another monitor, but you know, with YouTube.
 
 -   Embedded players: Some systems such as OBS have built-in browsers to display web pages. However it is usually distracting and difficult to control (especially video playback) in the browser being recorded/streamed. By having a dedicated control panel, we do not need to touch the output browser during the recording/streaming session.
 
@@ -81,7 +81,7 @@ Enter a single YouTube Video ID, or multiple IDs separated by commas. Here are s
 -   Mute / Unmute Video
 -   Loop / Unloop Video when it ends
 -   Jump to a specific point in the Video by keying in the time in minutes and seconds and pressing ENTER. For example, you can type `5:10` or `3.45` or `30` for 5 minutes 10 seconds, 3 minutes 45 seconds and 30 seconds respectively.
--   Size refers to playback quality size as reported by YouTube. Examples include `1080` or `720`.
+-   Size refers to playback quality size as reported by YouTube. Examples include `1080`, `720` or `Medium`.
 -   Display timer shows elapsed time followed by total video length. If this is a live stream, then video length refers to the duration since the live stream started.
 -   Progress bars display the current position of the video playback in orange, and the buffered position in light orange. When the video has played past key points (25%, 50%, 75%, etc), the percentage will be displayed inside the progress bar.
 -   Toggling the debug will display debugging messages, especially for embeded browsers that do not have easy access to the console.
@@ -119,6 +119,10 @@ No, they cannot. For the same reason why remote control from a different device 
 ### Does this slow down or affect my YouTube playback speed/quality?
 
 No. Your video will play as well as and as fast as you normally would since it is still your browser that does the actual playing directly from YouTube.
+
+### Can I force YouTube to play back the video at a certain quality level?
+
+No. While YouTube's iFrame loading has workarounds that allow forcing the video quality levels, YouTube's embedded controller API does not and instead works very hard to auto-detect the "correct" quality level. This auto-detection is based on two major factors - screen size and bandwidth. We can't do much about the bandwidth part, but YTCP tries very hard to default to 1080 by maximising the size of the player from the outset. Unfortunately, the we can't use the iFrame method because it does not allow us to remote-control the YouTube player (meaning you would need to manually click Play inside the video and press F to go to full screen).
 
 ### Why is the text in the Player so big?
 
